@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "Access Control Manager",
+  "version": "1.0.0",
+  "description": "Professional Chrome extension for fine-grained web page access control and permission management using CSS selectors",
+  "permissions": ["storage", "activeTab", "tabs", "scripting"],
+  "host_permissions": ["https://*/*", "http://*/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Access Control Manager",
+    "default_icon": {
+      "16": "assets/icon.png",
+      "32": "assets/icon.png",
+      "48": "assets/icon.png",
+      "128": "assets/icon.png"
+    }
+  },
+
+  "icons": {
+    "16": "assets/icon.png",
+    "32": "assets/icon.png",
+    "48": "assets/icon.png",
+    "128": "assets/icon.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["access-control.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
