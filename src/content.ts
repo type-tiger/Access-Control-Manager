@@ -49,7 +49,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     // Generate config hash for deduplication
     const configHash = JSON.stringify({
-      projects: Object.keys(request.config?.customProjects || {}),
+      projects: request.config?.customProjects || {},
       lang: request.lang,
     });
 

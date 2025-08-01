@@ -195,12 +195,7 @@ export function applyAccessControl(
     }
   });
 
-  // If no rules, no need to add styles
-  if (cssRules.length === 0) {
-    return;
-  }
-
-  // Create style tag and add to head
+  // Always create style element, even if empty, to ensure previous styles are cleared
   const styleElement = document.createElement("style");
   styleElement.id = "access-control-style";
   styleElement.textContent = cssRules.join("\n");
