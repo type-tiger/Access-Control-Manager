@@ -78,7 +78,9 @@ export function CustomProjectManager({
     config,
     onConfigChange,
     messageApi,
-    lang
+    lang,
+    expandedGroups,
+    onGroupExpand
   );
 
   // Module management operations
@@ -107,10 +109,6 @@ export function CustomProjectManager({
     } catch (error) {
       console.error("Module form validation error:", error);
     }
-  };
-
-  const handleDeleteModule = (moduleName: string) => {
-    moduleActions.deleteModule(moduleName);
   };
 
   // Drag handling function
@@ -223,7 +221,7 @@ export function CustomProjectManager({
         onBatchToggle={projectActions.batchToggleProjects}
         onUpdateBehavior={projectActions.updateProjectBehavior}
         onEditModule={handleEditModule}
-        onDeleteModule={handleDeleteModule}
+        onDeleteModule={moduleActions.deleteModule}
         // Edit-related props
         isEditing={isModalVisible}
         editingProject={editingProject}

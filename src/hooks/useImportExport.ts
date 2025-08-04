@@ -10,7 +10,9 @@ export function useImportExport(
   config: AccessControlConfig,
   onConfigChange: (config: AccessControlConfig) => void,
   messageApi: any,
-  lang: string
+  lang: string,
+  // UI state management
+  onGroupExpand?: (groups: string[]) => void
 ) {
   const t = createTranslator(lang);
 
@@ -107,6 +109,11 @@ export function useImportExport(
   );
 
   const clearAllProjects = useCallback(() => {
+    // Clear all expanded groups when clearing all projects
+    if (onGroupExpand) {
+      onGroupExpand([]);
+    }
+
     const newConfig = {
       ...config,
       customProjects: {},
@@ -115,7 +122,7 @@ export function useImportExport(
 
     onConfigChange(newConfig);
     messageApi.success(t("clearAllSuccess"));
-  }, [config, onConfigChange, messageApi, t]);
+  }, [config, onConfigChange, messageApi, t, onGroupExpand]);
 
   return {
     handleExport,

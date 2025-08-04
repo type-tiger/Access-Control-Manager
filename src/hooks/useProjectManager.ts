@@ -63,12 +63,6 @@ export function useProjectManager(
     messageApi,
     lang
   );
-  const importExport = useImportExport(
-    config,
-    onConfigChange,
-    messageApi,
-    lang
-  );
 
   // Get module options from existing configuration
   const moduleOptions = (() => {
@@ -114,30 +108,30 @@ export function useProjectManager(
     const loadState = async () => {
       try {
         const loadedState = await loadUIState();
-        const defaultState = getDefaultUIState();
 
-        // Auto-expand groups on first use
-        const isFirstTimeUse =
-          loadedState.expandedGroups.length === 0 &&
-          loadedState.viewMode === defaultState.viewMode &&
-          loadedState.scrollPosition === defaultState.scrollPosition &&
-          Object.keys(config.customProjects).length > 0;
+        // Clean up expandedGroups - remove groups that no longer exist
+        const existingModules = new Set(
+          Object.values(config.customProjects).map(
+            (p) => p.module || "Uncategorized"
+          )
+        );
+        const validExpandedGroups = loadedState.expandedGroups.filter((group) =>
+          existingModules.has(group)
+        );
 
-        if (isFirstTimeUse) {
-          const projectModuleGroups = Object.values(
-            config.customProjects
-          ).reduce((acc, project) => {
-            const module = project.module || "Uncategorized";
-            if (!acc.includes(module)) {
-              acc.push(module);
-            }
-            return acc;
-          }, [] as string[]);
+        const cleanedState = {
+          ...loadedState,
+          expandedGroups: validExpandedGroups,
+        };
 
-          loadedState.expandedGroups = projectModuleGroups;
+        setUIState(cleanedState);
+
+        // Save cleaned state if it changed
+        if (validExpandedGroups.length !== loadedState.expandedGroups.length) {
+          saveUIState(cleanedState).catch((error) => {
+            console.error("Failed to save cleaned UI state:", error);
+          });
         }
-
-        setUIState(loadedState);
       } catch (error) {
         console.error("Failed to load UI state:", error);
         setUIState(getDefaultUIState());
@@ -199,6 +193,15 @@ export function useProjectManager(
       saveUIStateDebounced(newState);
     },
     [uiState, saveUIStateDebounced]
+  );
+
+  // Import/Export hook (needs onGroupExpand)
+  const importExport = useImportExport(
+    config,
+    onConfigChange,
+    messageApi,
+    lang,
+    onGroupExpand
   );
 
   const onScrollPositionChange = useCallback(

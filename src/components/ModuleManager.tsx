@@ -61,7 +61,10 @@ export function useModuleActions(
   config: AccessControlConfig,
   onConfigChange: (config: AccessControlConfig) => void,
   messageApi: any,
-  lang: string = "en"
+  lang: string = "en",
+  // UI state management
+  expandedGroups?: string[],
+  onGroupExpand?: (groups: string[]) => void
 ) {
   const t = createTranslator(lang);
   // Get all module list
@@ -150,6 +153,16 @@ export function useModuleActions(
     const updatedCreatedModules = createdModules.filter(
       (module) => module !== moduleName
     );
+
+    // Remove the module from expanded groups if UI state management is available
+    if (expandedGroups && onGroupExpand) {
+      const newExpandedGroups = expandedGroups.filter(
+        (group) => group !== moduleName
+      );
+      if (newExpandedGroups.length !== expandedGroups.length) {
+        onGroupExpand(newExpandedGroups);
+      }
+    }
 
     const newConfig: AccessControlConfig = {
       ...config,
