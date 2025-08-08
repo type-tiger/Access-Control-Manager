@@ -4,17 +4,18 @@ import {
   matchesUrlPattern,
   parseMultipleSelectors,
 } from "../lib/access-control";
+import { InflowwEvent, ThemeMode } from "../types/InflowwEvent";
+import type {
+  SetLanguagePayload,
+  SetThemeModePayload,
+  CallEventResponse,
+} from "../types/InflowwEvent";
 
 export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"],
   run_at: "document_start",
   all_frames: true,
 };
-
-enum InflowwEvent {
-  SET_THEME_MODE = "Infloww:v1:set-theme-mode",
-  SET_LANGUAGE = "Infloww:v1:set-language",
-}
 
 // Debounce and caching
 let lastAppliedConfigHash = "";
@@ -271,20 +272,18 @@ const loadConfig = () => {
     applyAccessControl(config, "en");
   });
 
-  // listen to theme mode response
-  window.addEventListener("Infloww:v1:call-event-response", (event) => {
-    console.log("🔍 content script received response:", event);
-
-    const { detail } = event;
-
-    const { success = false, eventName } = detail;
-
-    if (eventName === InflowwEvent.SET_THEME_MODE) {
-      thirdPartyIntegration_themeMode = success;
-    } else if (eventName === InflowwEvent.SET_LANGUAGE) {
-      thirdPartyIntegration_language = success;
+  // listen to theme mode / language responses from main world
+  window.addEventListener(
+    "Infloww:v1:call-event-response",
+    (event: CustomEvent<CallEventResponse<InflowwEvent>>) => {
+      const { success = false, eventName } = event.detail;
+      if (eventName === InflowwEvent.SET_THEME_MODE) {
+        thirdPartyIntegration_themeMode = success;
+      } else if (eventName === InflowwEvent.SET_LANGUAGE) {
+        thirdPartyIntegration_language = success;
+      }
     }
-  });
+  );
 };
 
 const testThirdPartyIntegration = () => {
@@ -293,8 +292,8 @@ const testThirdPartyIntegration = () => {
       type: "Infloww:v1:call-event",
       eventName: InflowwEvent.SET_THEME_MODE,
       eventData: {
-        mode: "light",
-      },
+        mode: ThemeMode.DARK,
+      } as SetThemeModePayload,
     },
     "*"
   );
@@ -305,7 +304,7 @@ const testThirdPartyIntegration = () => {
       eventName: InflowwEvent.SET_LANGUAGE,
       eventData: {
         language: "en",
-      },
+      } as SetLanguagePayload,
     },
     "*"
   );
