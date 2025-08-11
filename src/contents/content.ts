@@ -296,8 +296,10 @@ const loadConfig = () => {
     (event: CustomEvent<CallEventResponse<InflowwEvent>>) => {
       const { success = false, eventName } = event.detail;
       if (eventName === InflowwEvent.SET_THEME_MODE) {
+        console.log("🎨 Received theme mode response:", success);
         thirdPartyIntegration_themeMode = success;
       } else if (eventName === InflowwEvent.SET_LANGUAGE) {
+        console.log("🎨 Received language response:", success);
         thirdPartyIntegration_language = success;
       }
     }
