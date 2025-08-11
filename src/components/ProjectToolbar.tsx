@@ -38,7 +38,9 @@ export function ProjectToolbar({
         marginBottom: 12,
         display: "flex",
         justifyContent: "space-between",
-        alignItems: "center",
+        alignItems: "flex-start",
+        gap: 8,
+        flexDirection: "column",
       }}
     >
       <Space align="center">

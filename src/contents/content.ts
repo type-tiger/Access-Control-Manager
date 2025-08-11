@@ -90,6 +90,24 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   }
 
+  if (request.type === "FORWARD_INFLOWW_EVENT") {
+    try {
+      const { eventName, eventData } = request;
+      window.postMessage(
+        {
+          type: "Infloww:v1:call-event",
+          eventName,
+          eventData,
+        },
+        "*"
+      );
+      sendResponse({ success: true });
+    } catch (error) {
+      sendResponse({ success: false, error: (error as any)?.message });
+    }
+    return true;
+  }
+
   if (request.type === "GET_PAGE_INFO") {
     console.log("📊 Getting page info...");
     console.log("📦 Config received:", request.config);

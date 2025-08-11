@@ -20,6 +20,22 @@ const loadLanguages = async (): Promise<void> => {
       const enModule = await import("./locales/en");
       availableLanguages["en"] = "English";
       currentTranslations["en"] = enModule.en;
+      // Try loading optional languages
+      try {
+        const frModule = await import("./locales/fr");
+        availableLanguages["fr"] = "Français";
+        currentTranslations["fr"] = frModule.fr;
+      } catch {}
+      try {
+        const deModule = await import("./locales/de");
+        availableLanguages["de"] = "Deutsch";
+        currentTranslations["de"] = deModule.de;
+      } catch {}
+      try {
+        const esModule = await import("./locales/es");
+        availableLanguages["es"] = "Español";
+        currentTranslations["es"] = esModule.es;
+      } catch {}
       isLanguagesLoaded = true;
       console.log("✅ Language files loaded successfully");
     } catch (error) {
@@ -64,6 +80,7 @@ export const getAvailableLanguages = () => {
 
 // Check if language selector should be shown
 export const shouldShowLanguageSelector = () => {
+  console.log("🔍 Available languages:", availableLanguages);
   return Object.keys(availableLanguages).length > 1;
 };
 

@@ -1,9 +1,11 @@
-import { Divider, Typography } from "antd";
+import React from "react";
+import { Button, Divider, Typography } from "antd";
 import { usePopupLogic } from "./hooks/usePopupLogic";
 import { LanguageSelector } from "./components/LanguageSelector";
 import { QuickActions } from "./components/QuickActions";
 import { CustomProjectManager } from "./components/CustomProjectManager";
 import { createTranslator } from "./lib/i18n";
+import IntegrationPanel from "./components/IntegrationPanel";
 
 const { Text } = Typography;
 
@@ -19,9 +21,13 @@ export default function Popup() {
     enableAll,
     disableAll,
     handleConfigChange,
+    getPageInfo,
+    sendThemeEvent,
+    sendLanguageEvent,
   } = usePopupLogic();
 
   const t = createTranslator(lang);
+  const [showIntegration, setShowIntegration] = React.useState(false);
 
   if (loading) {
     return (
@@ -37,6 +43,18 @@ export default function Popup() {
         </div>
         <div>{t("loading")}</div>
       </div>
+    );
+  }
+
+  if (showIntegration) {
+    return (
+      <IntegrationPanel
+        pageInfo={pageInfo}
+        onBack={() => setShowIntegration(false)}
+        onSendTheme={sendThemeEvent}
+        onSendLanguage={sendLanguageEvent}
+        onRefresh={getPageInfo}
+      />
     );
   }
 
@@ -130,13 +148,12 @@ export default function Popup() {
             </div>
           )}
         </div>
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <LanguageSelector lang={lang} onChange={setLang} />
-        </div>
       </div>
 
       {/* Quick actions */}
       <QuickActions
+        setShowIntegration={setShowIntegration}
+        setLang={setLang}
         lang={lang}
         onEnableAll={enableAll}
         onDisableAll={disableAll}
