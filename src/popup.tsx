@@ -6,6 +6,7 @@ import { QuickActions } from "./components/QuickActions";
 import { CustomProjectManager } from "./components/CustomProjectManager";
 import { createTranslator } from "./lib/i18n";
 import IntegrationPanel from "./components/IntegrationPanel";
+import styles from "./index.module.less";
 
 const { Text } = Typography;
 
@@ -31,7 +32,7 @@ export default function Popup() {
 
   if (loading) {
     return (
-      <div style={{ padding: 20, width: 600, textAlign: "center" }}>
+      <div style={{ padding: 20, width: 500, textAlign: "center" }}>
         <div
           style={{
             display: "inline-block",
@@ -54,12 +55,15 @@ export default function Popup() {
         onSendTheme={sendThemeEvent}
         onSendLanguage={sendLanguageEvent}
         onRefresh={getPageInfo}
+        lang={lang}
       />
     );
   }
 
   return (
-    <div style={{ padding: 12, width: 600, minHeight: 400, maxHeight: 1080 }}>
+    <div
+      style={{ padding: 12, minWidth: 500, minHeight: 500, maxHeight: 1080 }}
+    >
       {contextHolder}
 
       {/* Title and language switch on the same row */}
@@ -77,16 +81,7 @@ export default function Popup() {
           </h1>
           {/* Page info summary */}
           {pageInfo && (
-            <div
-              style={{
-                fontSize: 12,
-                color: "#666",
-                marginTop: 4,
-                display: "flex",
-                gap: 12,
-                alignItems: "center",
-              }}
-            >
+            <div className={styles["page-info"]}>
               <span>
                 {t("matchingElements")}:
                 <strong

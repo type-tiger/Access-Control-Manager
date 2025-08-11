@@ -199,3 +199,27 @@ export const en = {
   // Form labels
   moduleName: "Module Name",
 };
+
+// Integration
+export const en_integration = {
+  integrationEntry: "Third-party Integration",
+  integrationBack: "Back",
+  integrationTesterTitle: "Third-party Integration Tester",
+  integrationRefresh: "Refresh",
+  integrationStatus: "Integration Status",
+  integrationThemeEventResponse: "Theme event response",
+  integrationLanguageEventResponse: "Language event response",
+  integrationReceived: "Received",
+  integrationWaiting: "Waiting",
+  integrationSendTheme: "Send Theme",
+  integrationSetLight: "Set Light",
+  integrationSetDark: "Set Dark",
+  integrationSendLanguage: "Send Language",
+  integrationSetLanguage: "Set Language",
+  integrationLanguage_en_US: "English (en-US)",
+  integrationLanguage_fr_FR: "French (fr-FR)",
+  integrationLanguage_de_DE: "German (de-DE)",
+  integrationLanguage_es_ES: "Spanish (es-ES)",
+};
+
+Object.assign(en, en_integration);

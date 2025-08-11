@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Button, Divider, Select, Tag, Typography } from "antd";
+import { createTranslator } from "../lib/i18n";
 
 const { Title, Text } = Typography;
 
@@ -9,12 +10,16 @@ type IntegrationPanelProps = {
   onSendTheme: (mode: "light" | "dark") => Promise<void> | void;
   onSendLanguage: (language: string) => Promise<void> | void;
   onRefresh: () => Promise<void> | void;
+  lang: string;
 };
 
 export default function IntegrationPanel(props: IntegrationPanelProps) {
-  const { pageInfo, onBack, onSendTheme, onSendLanguage, onRefresh } = props;
+  const { pageInfo, onBack, onSendTheme, onSendLanguage, onRefresh, lang } =
+    props;
 
-  const [language, setLanguage] = useState<string>("en");
+  const [language, setLanguage] = useState<string>("en-US");
+
+  const t = createTranslator(lang);
 
   const themeIntegrated = useMemo(
     () => !!pageInfo?.thirdPartyIntegration_themeMode,
@@ -28,12 +33,12 @@ export default function IntegrationPanel(props: IntegrationPanelProps) {
   return (
     <div style={{ padding: 12, width: 600, minHeight: 400 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <Button onClick={onBack}>Back</Button>
+        <Button onClick={onBack}>{t("integrationBack")}</Button>
         <Title level={4} style={{ margin: 0 }}>
-          Third-party Integration Tester
+          {t("integrationTesterTitle")}
         </Title>
         <div style={{ marginLeft: "auto" }}>
-          <Button onClick={() => onRefresh()}>Refresh</Button>
+          <Button onClick={() => onRefresh()}>{t("integrationRefresh")}</Button>
         </div>
       </div>
 
@@ -44,26 +49,26 @@ export default function IntegrationPanel(props: IntegrationPanelProps) {
           style={{ border: "1px solid #f0f0f0", borderRadius: 8, padding: 12 }}
         >
           <Title level={5} style={{ marginTop: 0 }}>
-            Integration Status
+            {t("integrationStatus")}
           </Title>
           <div style={{ display: "grid", gap: 8 }}>
             <div>
-              <Text strong>Theme event response</Text>
+              <Text strong>{t("integrationThemeEventResponse")}</Text>
               <div>
                 {themeIntegrated ? (
-                  <Tag color="green">Received</Tag>
+                  <Tag color="green">{t("integrationReceived")}</Tag>
                 ) : (
-                  <Tag color="default">Waiting</Tag>
+                  <Tag color="default">{t("integrationWaiting")}</Tag>
                 )}
               </div>
             </div>
             <div>
-              <Text strong>Language event response</Text>
+              <Text strong>{t("integrationLanguageEventResponse")}</Text>
               <div>
                 {languageIntegrated ? (
-                  <Tag color="green">Received</Tag>
+                  <Tag color="green">{t("integrationReceived")}</Tag>
                 ) : (
-                  <Tag color="default">Waiting</Tag>
+                  <Tag color="default">{t("integrationWaiting")}</Tag>
                 )}
               </div>
             </div>
@@ -74,12 +79,14 @@ export default function IntegrationPanel(props: IntegrationPanelProps) {
           style={{ border: "1px solid #f0f0f0", borderRadius: 8, padding: 12 }}
         >
           <Title level={5} style={{ marginTop: 0 }}>
-            Send Theme
+            {t("integrationSendTheme")}
           </Title>
           <div style={{ display: "flex", gap: 8 }}>
-            <Button onClick={() => onSendTheme("light")}>Set Light</Button>
+            <Button onClick={() => onSendTheme("light")}>
+              {t("integrationSetLight")}
+            </Button>
             <Button type="primary" onClick={() => onSendTheme("dark")}>
-              Set Dark
+              {t("integrationSetDark")}
             </Button>
           </div>
         </div>
@@ -94,7 +101,7 @@ export default function IntegrationPanel(props: IntegrationPanelProps) {
         }}
       >
         <Title level={5} style={{ marginTop: 0 }}>
-          Send Language
+          {t("integrationSendLanguage")}
         </Title>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <Select
@@ -102,15 +109,14 @@ export default function IntegrationPanel(props: IntegrationPanelProps) {
             onChange={setLanguage}
             style={{ minWidth: 220 }}
             options={[
-              { value: "en-US", label: "English (en-US)" },
-              { value: "zh-CN", label: "Chinese (zh-CN)" },
-              { value: "fr-FR", label: "French (fr-FR)" },
-              { value: "de-DE", label: "German (de-DE)" },
-              { value: "es-ES", label: "Spanish (es-ES)" },
+              { value: "en-US", label: t("integrationLanguage_en_US") },
+              { value: "fr-FR", label: t("integrationLanguage_fr_FR") },
+              { value: "de-DE", label: t("integrationLanguage_de_DE") },
+              { value: "es-ES", label: t("integrationLanguage_es_ES") },
             ]}
           />
           <Button type="primary" onClick={() => onSendLanguage(language)}>
-            Set Language
+            {t("integrationSetLanguage")}
           </Button>
         </div>
       </div>

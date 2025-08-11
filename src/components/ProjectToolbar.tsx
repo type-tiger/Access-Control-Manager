@@ -40,11 +40,10 @@ export function ProjectToolbar({
         justifyContent: "space-between",
         alignItems: "flex-start",
         gap: 8,
-        flexDirection: "column",
       }}
     >
       <Space align="center">
-        <Text strong style={{ fontSize: 14 }}>
+        <Text strong style={{ fontSize: 14, whiteSpace: "nowrap" }}>
           {t("viewMode")}
         </Text>
         <Switch

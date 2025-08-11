@@ -57,7 +57,7 @@ export function QuickActions({
           style={{ fontSize: 11 }}
           onClick={() => setShowIntegration(true)}
         >
-          Third-party Integration
+          {t("integrationEntry")}
         </Button>
         <LanguageSelector lang={lang} onChange={setLang} />
       </div>
