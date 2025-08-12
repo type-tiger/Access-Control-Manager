@@ -1,7 +1,7 @@
 {
   "name": "access-control-chrome-extension",
   "displayName": "Access Control Manager",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Professional Chrome extension for fine-grained web page access control and permission management using CSS selectors",
   "author": "Infloww",
   "scripts": {
