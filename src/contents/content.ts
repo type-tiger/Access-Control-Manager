@@ -3,8 +3,13 @@ import {
   applyAccessControl,
   matchesUrlPattern,
   parseMultipleSelectors,
-} from "./lib/access-control";
-import type { AccessControlConfig } from "./lib/access-control";
+} from "../lib/access-control";
+import { InflowwEvent, ThemeMode } from "../types/InflowwEvent";
+import type {
+  SetLanguagePayload,
+  SetThemeModePayload,
+  CallEventResponse,
+} from "../types/InflowwEvent";
 
 export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"],
@@ -15,6 +20,8 @@ export const config: PlasmoCSConfig = {
 // Debounce and caching
 let lastAppliedConfigHash = "";
 let isProcessingMessage = false;
+let thirdPartyIntegration_themeMode: boolean = false;
+let thirdPartyIntegration_language: boolean = false;
 
 // Listen for messages from the extension
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -83,11 +90,28 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   }
 
+  if (request.type === "FORWARD_INFLOWW_EVENT") {
+    try {
+      const { eventName, eventData } = request;
+      window.postMessage(
+        {
+          type: "Infloww:v1:call-event",
+          eventName,
+          eventData,
+        },
+        "*"
+      );
+      sendResponse({ success: true });
+    } catch (error) {
+      sendResponse({ success: false, error: (error as any)?.message });
+    }
+    return true;
+  }
+
   if (request.type === "GET_PAGE_INFO") {
     console.log("📊 Getting page info...");
     console.log("📦 Config received:", request.config);
     console.log("🌐 Current frame URL:", window.location.href);
-    console.log("🖼️ Is main frame:", window === window.top);
 
     // Only handle GET_PAGE_INFO requests in main frame
     if (window !== window.top) {
@@ -192,6 +216,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           ).filter(
             (p: any) => p.enabled && matchesUrlPattern(p.urlPattern, currentUrl)
           ).length, // Number of enabled projects that match URL
+          thirdPartyIntegration_themeMode: thirdPartyIntegration_themeMode,
+          thirdPartyIntegration_language: thirdPartyIntegration_language,
         };
 
         console.log("📄 Page info collected:", pageInfo);
@@ -253,68 +279,61 @@ function handleUrlChange() {
   }
 }
 
-// Initialize DOM observer
-function initializeDOMObserver() {
-  if (document.body) {
-    // Monitor DOM changes, handle dynamically loaded content
-    const observer = new MutationObserver((mutations) => {
-      let hasAccessControlElements = false;
-
-      mutations.forEach((mutation) => {
-        mutation.addedNodes.forEach((node) => {
-          if (node.nodeType === Node.ELEMENT_NODE) {
-            const element = node as Element;
-            // Check if newly added elements or their children have access-control related attributes
-            if (
-              (element.hasAttribute &&
-                (element.hasAttribute("access-control-type") ||
-                  element.hasAttribute("access-control-role") ||
-                  element.hasAttribute("data-testid"))) ||
-              (element.querySelector &&
-                (element.querySelector("[access-control-type]") ||
-                  element.querySelector("[access-control-role]") ||
-                  element.querySelector("[data-testid]")))
-            ) {
-              hasAccessControlElements = true;
-            }
-
-            // Check if there are elements that might be matched by custom selectors
-            if (
-              element.hasAttribute &&
-              (element.classList.length > 0 || element.id)
-            ) {
-              hasAccessControlElements = true;
-            }
-          }
-        });
-      });
-
-      // If new possible access control elements are detected, re-apply configuration
-      if (hasAccessControlElements) {
-        if (Object.keys(currentConfig.customProjects || {}).length > 0) {
-          applyAccessControl(currentConfig, currentLang);
-        }
-      }
-    });
-
-    // Start observing DOM changes
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-    });
-
-    console.log("📡 DOM observer initialized");
-  } else {
-    // If body doesn't exist yet, wait and retry
-    setTimeout(initializeDOMObserver, 100);
-  }
-}
-
-// Initialize DOM observer
-initializeDOMObserver();
-
 // Initialize URL listener
 initializeUrlObserver();
 
+// load config form local storage
+const loadConfig = () => {
+  chrome.storage.local.get("access-control-config", (result) => {
+    console.log("🔍 Config loaded from local storage:", result);
+    const config = result["access-control-config"];
+    applyAccessControl(config, "en");
+  });
+
+  // listen to theme mode / language responses from main world
+  window.addEventListener(
+    "Infloww:v1:call-event-response",
+    (event: CustomEvent<CallEventResponse<InflowwEvent>>) => {
+      const { success = false, eventName } = event.detail;
+      if (eventName === InflowwEvent.SET_THEME_MODE) {
+        console.log("🎨 Received theme mode response:", success);
+        thirdPartyIntegration_themeMode = success;
+      } else if (eventName === InflowwEvent.SET_LANGUAGE) {
+        console.log("🎨 Received language response:", success);
+        thirdPartyIntegration_language = success;
+      }
+    }
+  );
+};
+
+const testThirdPartyIntegration = () => {
+  window.postMessage(
+    {
+      type: "Infloww:v1:call-event",
+      eventName: InflowwEvent.SET_THEME_MODE,
+      eventData: {
+        mode: ThemeMode.DARK,
+      } as SetThemeModePayload,
+    },
+    "*"
+  );
+
+  window.postMessage(
+    {
+      type: "Infloww:v1:call-event",
+      eventName: InflowwEvent.SET_LANGUAGE,
+      eventData: {
+        language: "en",
+      } as SetLanguagePayload,
+    },
+    "*"
+  );
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+  testThirdPartyIntegration();
+});
+
+loadConfig();
+
 console.log("✅ Content script loaded");
-console.log("ℹ️ Waiting for popup to send configuration...");

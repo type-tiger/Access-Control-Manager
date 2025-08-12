@@ -7,6 +7,7 @@ import {
   saveAccessControlConfig,
 } from "../lib/storage";
 import { createTranslator, ensureLanguagesLoaded } from "../lib/i18n";
+import { InflowwEvent } from "~types/InflowwEvent";
 
 interface PageInfo {
   url: string;
@@ -53,7 +54,6 @@ export function usePopupLogic() {
       try {
         // Ensure languages are loaded first
         await ensureLanguagesLoaded();
-        console.log("🌐 Languages loaded, proceeding with configuration load");
         setLanguagesLoading(false);
 
         // Then load configuration
@@ -193,6 +193,52 @@ export function usePopupLogic() {
     [config, lang]
   );
 
+  // Dispatch theme change event to the page via MAIN world forwarder
+  const sendThemeEvent = useCallback(
+    async (mode: "light" | "dark") => {
+      try {
+        const [tab] = await chrome.tabs.query({
+          active: true,
+          currentWindow: true,
+        });
+        if (tab.id) {
+          await chrome.tabs.sendMessage(tab.id, {
+            type: "FORWARD_INFLOWW_EVENT",
+            eventName: InflowwEvent.SET_THEME_MODE,
+            eventData: { mode },
+          });
+          setTimeout(() => getPageInfo(), 200);
+        }
+      } catch (error) {
+        console.error("❌ Error sending theme event:", error);
+      }
+    },
+    [getPageInfo]
+  );
+
+  // Dispatch language change event to the page via MAIN world forwarder
+  const sendLanguageEvent = useCallback(
+    async (languageTag: string) => {
+      try {
+        const [tab] = await chrome.tabs.query({
+          active: true,
+          currentWindow: true,
+        });
+        if (tab.id) {
+          await chrome.tabs.sendMessage(tab.id, {
+            type: "FORWARD_INFLOWW_EVENT",
+            eventName: InflowwEvent.SET_LANGUAGE,
+            eventData: { language: languageTag },
+          });
+          setTimeout(() => getPageInfo(), 200);
+        }
+      } catch (error) {
+        console.error("❌ Error sending language event:", error);
+      }
+    },
+    [getPageInfo]
+  );
+
   // Apply configuration to current tab
   const applyConfigToCurrentTab = async (
     configToApply: AccessControlConfig
@@ -283,5 +329,8 @@ export function usePopupLogic() {
     disableAll,
     handleConfigChange,
     languagesLoading, // Separate flag for language loading
+    getPageInfo,
+    sendThemeEvent,
+    sendLanguageEvent,
   };
 }

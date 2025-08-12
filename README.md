@@ -120,9 +120,18 @@ No special setup required! The extension works with any website. For better comp
 2. Add custom attributes/IDs when needed for unique identification
 3. Test with the extension during development
 
-## Export & Platform Integration
+## Infloww Web Events Integration (Theme & Language)
 
-### Export Configuration
+Third‑party websites can synchronize UI theme and language with the Infloww platform by listening to window events. Infloww dispatches two v1 events: `Infloww:v1:set-theme-mode` and `Infloww:v1:set-language`. Handlers receive payloads via `event.detail.data`.
+
+- Listen as early as possible
+- Apply changes and optionally acknowledge via the provided callback
+
+See the full integration spec and examples in the documentation:
+
+- [Infloww Web Integration: Theme & Language Events (v1)](docs/infloww-web-events.md)
+
+## Exporting Configuration
 
 1. Configure all your permission projects
 2. Click "Export" to download JSON configuration

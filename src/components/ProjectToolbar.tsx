@@ -38,11 +38,12 @@ export function ProjectToolbar({
         marginBottom: 12,
         display: "flex",
         justifyContent: "space-between",
-        alignItems: "center",
+        alignItems: "flex-start",
+        gap: 8,
       }}
     >
       <Space align="center">
-        <Text strong style={{ fontSize: 14 }}>
+        <Text strong style={{ fontSize: 14, whiteSpace: "nowrap" }}>
           {t("viewMode")}
         </Text>
         <Switch
