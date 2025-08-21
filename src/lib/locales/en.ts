@@ -173,6 +173,11 @@ export const en = {
   cssSelectorPlaceholder:
     "Enter CSS selectors, multiple selectors separated by commas:\n.container, #main, div.active, [data-role='admin']",
   urlPatternLabel: "URL Pattern (Regex)",
+  urlPatternEmptyHint: "Empty means effective on all pages",
+  inflowwCodeLabel: "Infloww Permission Code",
+  inflowwCodeExtra:
+    "Optional permission code for Infloww platform integration (can be duplicated)",
+  inflowwCodePlaceholder: "Enter permission code (optional)",
 
   // Messages
   enabledAllProjects: "Enabled control for all projects",

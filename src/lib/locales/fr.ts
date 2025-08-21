@@ -176,6 +176,11 @@ export const fr = {
   cssSelectorPlaceholder:
     "Entrez des sélecteurs CSS, plusieurs sélecteurs séparés par des virgules :\n.container, #main, div.active, [data-role='admin']",
   urlPatternLabel: "Motif d'URL (Regex)",
+  urlPatternEmptyHint: "Vide signifie effectif sur toutes les pages",
+  inflowwCodeLabel: "Code d'autorisation Infloww",
+  inflowwCodeExtra:
+    "Code d'autorisation facultatif pour l'intégration Infloww (peut être dupliqué)",
+  inflowwCodePlaceholder: "Entrez le code d'autorisation (facultatif)",
 
   // Messages
   enabledAllProjects: "Contrôle activé pour tous les projets",

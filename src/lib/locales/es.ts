@@ -177,6 +177,11 @@ export const es = {
   cssSelectorPlaceholder:
     "Ingresa selectores CSS, múltiples selectores separados por comas:\n.container, #main, div.active, [data-role='admin']",
   urlPatternLabel: "Patrón de URL (Regex)",
+  urlPatternEmptyHint: "Vacío significa efectivo en todas las páginas",
+  inflowwCodeLabel: "Código de autorización de Infloww",
+  inflowwCodeExtra:
+    "Código de autorización opcional para la integración con Infloww (puede duplicarse)",
+  inflowwCodePlaceholder: "Ingresa el código de autorización (opcional)",
 
   // Messages
   enabledAllProjects: "Control habilitado para todos los proyectos",

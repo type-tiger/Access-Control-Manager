@@ -177,6 +177,11 @@ export const de = {
   cssSelectorPlaceholder:
     "Geben Sie CSS-Selektoren ein, mehrere Selektoren durch Kommas getrennt:\n.container, #main, div.active, [data-role='admin']",
   urlPatternLabel: "URL-Muster (Regex)",
+  urlPatternEmptyHint: "Leer bedeutet auf allen Seiten wirksam",
+  inflowwCodeLabel: "Infloww-Berechtigungscode",
+  inflowwCodeExtra:
+    "Optionaler Berechtigungscode für die Infloww-Integration (kann dupliziert werden)",
+  inflowwCodePlaceholder: "Berechtigungscode eingeben (optional)",
 
   // Messages
   enabledAllProjects: "Kontrolle für alle Projekte aktiviert",

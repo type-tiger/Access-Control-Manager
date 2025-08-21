@@ -15,6 +15,7 @@ import type {
   ProjectValidationResult,
 } from "../lib/access-control";
 import { generateSelectorString } from "../lib/access-control";
+import { createTranslator } from "../lib/i18n";
 
 const { Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -38,8 +39,10 @@ const ProjectFormComponent = ({
   moduleOptions,
   onCancel,
   onSave,
+  lang,
 }: ProjectFormProps) => {
-  const title = editingProject ? "Edit Project" : "Add Project";
+  const t = createTranslator(lang);
+  const title = editingProject ? t("editProject") : t("addProject");
 
   if (!visible) return null;
 
@@ -56,10 +59,10 @@ const ProjectFormComponent = ({
             type="primary"
             icon={<SaveOutlined />}
           >
-            Save
+            {t("save")}
           </Button>
           <Button size="small" onClick={onCancel} icon={<CloseOutlined />}>
-            Cancel
+            {t("cancel")}
           </Button>
         </Space>
       }
@@ -78,50 +81,48 @@ const ProjectFormComponent = ({
         preserve={false}
       >
         <Form.Item
-          label="Project Name"
+          label={t("projectNameLabel")}
           name="name"
           rules={[
-            { required: true, message: "Please enter project name" },
-            { max: 50, message: "Project name cannot exceed 50 characters" },
+            { required: true, message: t("nameRequired") },
+            { max: 50, message: t("projectNameMaxLength") },
           ]}
         >
-          <Input placeholder="Enter project name" size="small" />
+          <Input placeholder={t("projectNamePlaceholder")} size="small" />
         </Form.Item>
 
         <Form.Item
-          label="Project Description"
+          label={t("projectDescriptionLabel")}
           name="description"
           rules={[
             {
               max: 200,
-              message: "Project description cannot exceed 200 characters",
+              message: t("projectDescriptionMaxLength"),
             },
           ]}
         >
           <TextArea
             rows={2}
-            placeholder="Enter project description"
+            placeholder={t("projectDescriptionPlaceholder")}
             size="small"
           />
         </Form.Item>
 
         <Form.Item
-          label="Infloww Permission Code"
+          label={t("inflowwCodeLabel")}
           name="code"
-          extra="Optional permission code for Infloww platform integration (can be duplicated)"
+          extra={t("inflowwCodeExtra")}
         >
-          <Input placeholder="Enter permission code (optional)" size="small" />
+          <Input placeholder={t("inflowwCodePlaceholder")} size="small" />
         </Form.Item>
 
         <Form.Item
-          label="Belonging Group"
+          label={t("belongingGroupLabel")}
           name="module"
-          rules={[
-            { required: true, message: "Please select or enter group name" },
-          ]}
+          rules={[{ required: true, message: t("groupRequired") }]}
         >
           <AutoComplete
-            placeholder="Select existing group or enter new group name"
+            placeholder={t("belongingGroupPlaceholder")}
             allowClear
             size="small"
             options={moduleOptions}
@@ -133,58 +134,39 @@ const ProjectFormComponent = ({
         </Form.Item>
 
         <Form.Item
-          label="CSS Selector"
+          label={t("cssSelector")}
           name="selector"
-          rules={[{ required: true, message: "Please enter CSS selector" }]}
+          rules={[{ required: true, message: t("cssSelectorRequired") }]}
           extra={
             <div style={{ fontSize: 12, color: "#666" }}>
-              <div>
-                All CSS selectors supported: .class, #id, tag, [attribute],
-                [attribute="value"], .class1.class2, .parent .child, etc.
-              </div>
+              <div>{t("cssSelectorHint")}</div>
               <div
                 style={{ marginTop: 4, fontWeight: "bold", color: "#1890ff" }}
               >
-                💡 Multiple selectors supported: separate with commas, e.g.:
-                .btn, #header, [data-role]
+                {t("cssSelectorMultiHint")}
               </div>
             </div>
           }
         >
           <TextArea
             rows={3}
-            placeholder="Enter CSS selectors, multiple selectors separated by commas:&#10;.container, #main, div.active, [data-role='admin']"
+            placeholder={t("cssSelectorPlaceholder")}
             size="small"
           />
         </Form.Item>
 
         <Form.Item
-          label="URL Pattern (Regex)"
+          label={t("urlPatternLabel")}
           name="urlPattern"
           extra={
             <div style={{ fontSize: 12, color: "#666" }}>
-              <div>Regex only. Common patterns:</div>
-              <div style={{ marginTop: 2 }}>
-                • <code>^/settings$</code> - Exact match /settings page
-              </div>
-              <div>
-                • <code>^/settings</code> - Match paths starting with /settings
-              </div>
-              <div>
-                • <code>.*admin.*</code> - Match paths containing admin
-              </div>
-              <div>
-                • <code>settings|account</code> - Match settings or account
-                pages
-              </div>
-              <div style={{ marginTop: 4 }}>
-                Empty means effective on all pages
-              </div>
+              <div>{t("urlPatternHint")}</div>
+              <div style={{ marginTop: 4 }}>{t("urlPatternEmptyHint")}</div>
             </div>
           }
         >
           <Input
-            placeholder="e.g.: ^/settings$, .*admin.*, settings|account (empty for all pages)"
+            placeholder={t("urlPatternPlaceholder")}
             size="small"
             allowClear
           />
