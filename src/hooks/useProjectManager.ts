@@ -229,6 +229,18 @@ export function useProjectManager(
       const validation = validateFormFields(values);
 
       if (!validation.isValid) {
+        const errorMessage = validation.error || "Validation failed";
+        // 显示字段级错误
+        const lower = errorMessage.toLowerCase();
+        if (lower.includes("selector")) {
+          form.setFields([{ name: "selector", errors: [errorMessage] }]);
+        } else if (lower.includes("regex") || lower.includes("pattern")) {
+          form.setFields([{ name: "urlPattern", errors: [errorMessage] }]);
+        }
+        // 全局提示
+        try {
+          messageApi?.error?.(errorMessage);
+        } catch {}
         return false;
       }
 
@@ -242,14 +254,25 @@ export function useProjectManager(
         form.resetFields();
         return true;
       } else {
-        setValidationResult({ isValid: false, error: result.error });
+        const errorMessage =
+          result.error || "Save failed due to validation error";
+        setValidationResult({ isValid: false, error: errorMessage });
+        const lower = errorMessage.toLowerCase();
+        if (lower.includes("selector")) {
+          form.setFields([{ name: "selector", errors: [errorMessage] }]);
+        } else if (lower.includes("regex") || lower.includes("pattern")) {
+          form.setFields([{ name: "urlPattern", errors: [errorMessage] }]);
+        }
+        try {
+          messageApi?.error?.(errorMessage);
+        } catch {}
         return false;
       }
     } catch (error) {
       console.error("Failed to save project:", error);
       return false;
     }
-  }, [form, validateFormFields, editingProject, projectActions]);
+  }, [form, validateFormFields, editingProject, projectActions, messageApi]);
 
   return {
     // State
