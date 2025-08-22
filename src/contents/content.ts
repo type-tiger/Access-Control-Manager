@@ -10,6 +10,7 @@ import type {
   SetThemeModePayload,
   CallEventResponse,
 } from "../types/InflowwEvent";
+import logger from "../utils/console";
 
 export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"],
@@ -44,12 +45,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 
   // Only execute in main frame
-  console.log("📨 Content script received message:", request);
+  logger.log("📨 Content script received message:", request);
 
   if (request.type === "APPLY_ACCESS_CONTROL") {
     // Prevent duplicate processing
     if (isProcessingMessage) {
-      console.log("🔄 Already processing message, skipping...");
+      logger.log("🔄 Already processing message, skipping...");
       sendResponse({ success: true, skipped: true });
       return true;
     }
@@ -61,14 +62,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     });
 
     if (lastAppliedConfigHash === configHash) {
-      console.log("🔄 Same config already applied, skipping...");
+      logger.log("🔄 Same config already applied, skipping...");
       sendResponse({ success: true, cached: true });
       return true;
     }
 
     isProcessingMessage = true;
-    console.log("🎯 Applying access control with config:", request.config);
-    console.log("🌐 Language:", request.lang);
+    logger.log("🎯 Applying access control with config:", request.config);
+    logger.log("🌐 Language:", request.lang);
 
     try {
       // Update current configuration
@@ -78,10 +79,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
       // Apply access control
       applyAccessControl(request.config, request.lang);
-      console.log("✅ Access control applied successfully");
+      logger.log("✅ Access control applied successfully");
       sendResponse({ success: true });
     } catch (error) {
-      console.error("❌ Failed to apply access control:", error);
+      logger.error("❌ Failed to apply access control:", error);
       sendResponse({ success: false, error: error.message });
     } finally {
       isProcessingMessage = false;
@@ -109,13 +110,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 
   if (request.type === "GET_PAGE_INFO") {
-    console.log("📊 Getting page info...");
-    console.log("📦 Config received:", request.config);
-    console.log("🌐 Current frame URL:", window.location.href);
+    logger.log("📊 Getting page info...");
+    logger.log("📦 Config received:", request.config);
+    logger.log("🌐 Current frame URL:", window.location.href);
 
     // Only handle GET_PAGE_INFO requests in main frame
     if (window !== window.top) {
-      console.log("⏭️ Ignoring GET_PAGE_INFO in iframe");
+      logger.log("⏭️ Ignoring GET_PAGE_INFO in iframe");
       return false; // No response
     }
 
@@ -127,9 +128,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         // If no config in request, use current saved config
         if (request.config) {
           config = request.config;
-          console.log("📦 Using config from request");
+          logger.log("📦 Using config from request");
         } else {
-          console.log("📦 No config in request, using current config");
+          logger.log("📦 No config in request, using current config");
           config = currentConfig;
         }
 
@@ -158,7 +159,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                   validSelectors.push(selector);
                 }
               } catch (error) {
-                console.warn(
+                logger.warn(
                   `❌ Invalid selector "${selector}" for project ${project.name}:`,
                   error
                 );
@@ -194,7 +195,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
               totalMatchingElementCount += totalElementCountForProject;
             }
           } catch (error) {
-            console.warn(
+            logger.warn(
               `❌ Error processing project ${project.name}: ${project.selector}`,
               error
             );
@@ -220,10 +221,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           thirdPartyIntegration_language: thirdPartyIntegration_language,
         };
 
-        console.log("📄 Page info collected:", pageInfo);
+        logger.log("📄 Page info collected:", pageInfo);
         sendResponse({ success: true, pageInfo: pageInfo });
       } catch (error) {
-        console.error("❌ Failed to collect page info:", error);
+        logger.error("❌ Failed to collect page info:", error);
         sendResponse({ success: false, error: error.message });
       }
     })();
@@ -261,19 +262,19 @@ function initializeUrlObserver() {
   // Listen to hashchange event
   window.addEventListener("hashchange", handleUrlChange);
 
-  console.log("📡 URL observer initialized");
+  logger.log("📡 URL observer initialized");
 }
 
 // Handle URL changes
 function handleUrlChange() {
   const newUrl = window.location.href;
   if (newUrl !== currentUrl) {
-    console.log("🔄 URL changed from", currentUrl, "to", newUrl);
+    logger.log("🔄 URL changed from", currentUrl, "to", newUrl);
     currentUrl = newUrl;
 
     // Re-apply configuration
     if (Object.keys(currentConfig.customProjects || {}).length > 0) {
-      console.log("🎯 Reapplying config due to URL change");
+      logger.log("🎯 Reapplying config due to URL change");
       applyAccessControl(currentConfig, currentLang);
     }
   }
@@ -285,7 +286,7 @@ initializeUrlObserver();
 // load config form local storage
 const loadConfig = () => {
   chrome.storage.local.get("access-control-config", (result) => {
-    console.log("🔍 Config loaded from local storage:", result);
+    logger.log("🔍 Config loaded from local storage:", result);
     const config = result["access-control-config"];
     applyAccessControl(config, "en");
   });
@@ -296,10 +297,10 @@ const loadConfig = () => {
     (event: CustomEvent<CallEventResponse<InflowwEvent>>) => {
       const { success = false, eventName } = event.detail;
       if (eventName === InflowwEvent.SET_THEME_MODE) {
-        console.log("🎨 Received theme mode response:", success);
+        logger.log("🎨 Received theme mode response:", success);
         thirdPartyIntegration_themeMode = success;
       } else if (eventName === InflowwEvent.SET_LANGUAGE) {
-        console.log("🎨 Received language response:", success);
+        logger.log("🎨 Received language response:", success);
         thirdPartyIntegration_language = success;
       }
     }
@@ -336,4 +337,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
 loadConfig();
 
-console.log("✅ Content script loaded");
+logger.log("✅ Content script loaded");

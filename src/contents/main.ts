@@ -67,5 +67,3 @@ window.addEventListener("message", (event: MessageEvent) => {
     );
   }
 });
-
-console.log("🔍 world window loaded", window);

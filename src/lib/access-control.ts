@@ -1,4 +1,5 @@
 import { createTranslator, I18N } from "./i18n";
+import logger from "../utils/console";
 
 // Custom project configuration interface
 export interface CustomProjectConfig {
@@ -147,7 +148,7 @@ export function matchesUrlPattern(
     const regex = new RegExp(pattern, "i");
     return regex.test(normalizedCurrentUrl);
   } catch (error) {
-    console.warn("Invalid regex pattern:", pattern, error);
+    logger.warn("Invalid regex pattern:", pattern, error);
     return false;
   }
 }
@@ -165,6 +166,11 @@ export function applyAccessControl(
   const existingStyle = document.getElementById("access-control-style");
   if (existingStyle) {
     existingStyle.remove();
+  }
+
+  if (!config?.customProjects) {
+    logger.log("🔍 No custom projects found, skipping access control");
+    return;
   }
 
   // Get current page URL
@@ -306,7 +312,7 @@ export function importCustomProjects(jsonString: string): {
     if (importData._metadata && importData.projects) {
       // New format with metadata
       projectsData = importData.projects;
-      console.log(
+      logger.log(
         `Importing ${importData._metadata.projectCount} projects from ${importData._metadata.exportDate}`
       );
     } else {

@@ -1,3 +1,5 @@
+import logger from "../utils/console";
+
 // Language loading system
 let availableLanguages: { [key: string]: string } = {};
 let currentTranslations: any = {};
@@ -15,7 +17,6 @@ const loadLanguages = async (): Promise<void> => {
 
   loadingPromise = (async () => {
     try {
-      console.log("🌐 Loading language files...");
       // Load English (always available)
       const enModule = await import("./locales/en");
       availableLanguages["en"] = "English";
@@ -37,7 +38,7 @@ const loadLanguages = async (): Promise<void> => {
         currentTranslations["es"] = esModule.es;
       } catch {}
       isLanguagesLoaded = true;
-      console.log("✅ Language files loaded successfully");
+      logger.log("✅ Language files loaded successfully");
     } catch (error) {
       console.error("❌ Failed to load language files:", error);
       // Fallback: create minimal English translations
@@ -80,7 +81,7 @@ export const getAvailableLanguages = () => {
 
 // Check if language selector should be shown
 export const shouldShowLanguageSelector = () => {
-  console.log("🔍 Available languages:", availableLanguages);
+  logger.log("🔍 Available languages:", availableLanguages);
   return Object.keys(availableLanguages).length > 1;
 };
 
@@ -92,7 +93,7 @@ export const t = (
 ) => {
   // If languages not loaded yet, show loading indicator for certain keys
   if (!isLanguagesLoaded) {
-    console.warn(
+    logger.warn(
       "⚠️ Translations not loaded yet, showing fallback for key:",
       key
     );

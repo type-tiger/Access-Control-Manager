@@ -1,5 +1,6 @@
 import { getDefaultAccessControlConfig } from "./access-control";
 import type { AccessControlConfig } from "./access-control";
+import logger from "../utils/console";
 
 const STORAGE_KEY = "access-control-config";
 export const LANG_KEY = "access-control-lang";
@@ -67,7 +68,7 @@ export async function loadAccessControlConfig(): Promise<AccessControlConfig> {
     const result = await chromeApi.storage.local.get(STORAGE_KEY);
     const savedConfig = result[STORAGE_KEY];
 
-    console.log("🔍 Loading config from chrome.storage:", {
+    logger.log("🔍 Loading config from chrome.storage:", {
       result,
       savedConfig,
     });
@@ -87,7 +88,7 @@ export async function loadAccessControlConfig(): Promise<AccessControlConfig> {
       const localStorageData = localStorage.getItem(STORAGE_KEY);
       if (localStorageData) {
         const savedConfig = JSON.parse(localStorageData);
-        console.log(
+        logger.log(
           "🔍 Loading config from localStorage fallback:",
           savedConfig
         );
@@ -107,7 +108,7 @@ export async function loadAccessControlConfig(): Promise<AccessControlConfig> {
 
   // If all failed, return default config
   const defaultConfig = getDefaultAccessControlConfig();
-  console.log("⚠️ No saved config found, using default:", defaultConfig);
+  logger.log("⚠️ No saved config found, using default:", defaultConfig);
   return defaultConfig;
 }
 
@@ -179,7 +180,7 @@ export async function loadUIState(): Promise<UIState> {
     const result = await chromeApi.storage.local.get(UI_STATE_KEY);
     const savedState = result[UI_STATE_KEY];
 
-    console.log("🔍 Loading UI state from chrome.storage:", {
+    logger.log("🔍 Loading UI state from chrome.storage:", {
       result,
       savedState,
     });
@@ -195,7 +196,7 @@ export async function loadUIState(): Promise<UIState> {
       const localStorageData = localStorage.getItem(UI_STATE_KEY);
       if (localStorageData) {
         const savedState = JSON.parse(localStorageData);
-        console.log("✅ UI state loaded from localStorage:", savedState);
+        logger.log("✅ UI state loaded from localStorage:", savedState);
         return { ...getDefaultUIState(), ...savedState };
       }
     } catch (fallbackError) {
@@ -205,7 +206,7 @@ export async function loadUIState(): Promise<UIState> {
 
   // If all failed, return default state
   const defaultState = getDefaultUIState();
-  console.log("⚠️ No saved UI state found, using default:", defaultState);
+  logger.log("⚠️ No saved UI state found, using default:", defaultState);
   return defaultState;
 }
 

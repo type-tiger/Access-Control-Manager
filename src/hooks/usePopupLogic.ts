@@ -8,6 +8,7 @@ import {
 } from "../lib/storage";
 import { createTranslator, ensureLanguagesLoaded } from "../lib/i18n";
 import { InflowwEvent } from "~types/InflowwEvent";
+import logger from "../utils/console";
 
 interface PageInfo {
   url: string;
@@ -59,7 +60,7 @@ export function usePopupLogic() {
         // Then load configuration
         await loadConfiguration();
       } catch (error) {
-        console.error("❌ Error during popup initialization:", error);
+        logger.error("❌ Error during popup initialization:", error);
         // Still try to load configuration even if languages fail
         setLanguagesLoading(false);
         await loadConfiguration();
@@ -84,7 +85,7 @@ export function usePopupLogic() {
         lastConfigAppliedRef.current === configHash ||
         isApplyingConfigRef.current
       ) {
-        console.log("🔄 Skipping duplicate config application");
+        logger.log("🔄 Skipping duplicate config application");
         return;
       }
 
@@ -98,7 +99,7 @@ export function usePopupLogic() {
         });
 
         if (tab.id) {
-          console.log("📤 Applying config to tab:", tab.id);
+          logger.log("📤 Applying config to tab:", tab.id);
           await chrome.tabs.sendMessage(tab.id, {
             type: "APPLY_ACCESS_CONTROL",
             config: configToApply,
@@ -112,12 +113,12 @@ export function usePopupLogic() {
 
           // Debounced page info retrieval
           pageInfoTimeoutRef.current = setTimeout(() => {
-            console.log("📊 Getting page info after config applied");
+            logger.log("📊 Getting page info after config applied");
             getPageInfo(configToApply);
           }, 300);
         }
       } catch (error) {
-        console.error("❌ Error applying config:", error);
+        logger.error("❌ Error applying config:", error);
       } finally {
         isApplyingConfigRef.current = false;
       }
@@ -135,7 +136,7 @@ export function usePopupLogic() {
   // Save when switching language
   useEffect(() => {
     localStorage.setItem(LANG_KEY, lang);
-    console.log("🌐 Language changed to:", lang);
+    logger.log("🌐 Language changed to:", lang);
   }, [lang]);
 
   // Cleanup function
@@ -148,18 +149,18 @@ export function usePopupLogic() {
   }, []);
 
   const loadConfiguration = async () => {
-    console.log("📥 Starting to load configuration...");
+    logger.log("📥 Starting to load configuration...");
     setLoading(true);
     try {
       const savedConfig = await loadAccessControlConfig();
-      console.log("📋 Loaded config:", savedConfig);
+      logger.log("📋 Loaded config:", savedConfig);
       setConfig(savedConfig);
       // Note: Don't call getPageInfo here, let useEffect handle it uniformly
     } catch (error) {
-      console.error("❌ Error loading configuration:", error);
+      logger.error("❌ Error loading configuration:", error);
     } finally {
       setLoading(false);
-      console.log("✅ Configuration loading completed");
+      logger.log("✅ Configuration loading completed");
     }
   };
 
@@ -173,7 +174,7 @@ export function usePopupLogic() {
         });
         if (tab.id) {
           const currentConfig = configToUse || config;
-          console.log("📤 Sending GET_PAGE_INFO with config");
+          logger.log("📤 Sending GET_PAGE_INFO with config");
           const response = await chrome.tabs.sendMessage(tab.id, {
             type: "GET_PAGE_INFO",
             config: currentConfig,
@@ -181,13 +182,13 @@ export function usePopupLogic() {
           });
           if (response && response.success) {
             setPageInfo(response.pageInfo);
-            console.log("📄 Page info received and set");
+            logger.log("📄 Page info received and set");
           } else {
-            console.error("❌ Failed to get page info:", response?.error);
+            logger.error("❌ Failed to get page info:", response?.error);
           }
         }
       } catch (error) {
-        console.error("❌ Error getting page info:", error);
+        logger.error("❌ Error getting page info:", error);
       }
     },
     [config, lang]
@@ -210,7 +211,7 @@ export function usePopupLogic() {
           setTimeout(() => getPageInfo(), 200);
         }
       } catch (error) {
-        console.error("❌ Error sending theme event:", error);
+        logger.error("❌ Error sending theme event:", error);
       }
     },
     [getPageInfo]
@@ -233,7 +234,7 @@ export function usePopupLogic() {
           setTimeout(() => getPageInfo(), 200);
         }
       } catch (error) {
-        console.error("❌ Error sending language event:", error);
+        logger.error("❌ Error sending language event:", error);
       }
     },
     [getPageInfo]
@@ -248,31 +249,31 @@ export function usePopupLogic() {
         active: true,
         currentWindow: true,
       });
-      console.log("🎯 Current tab:", tab);
+      logger.log("🎯 Current tab:", tab);
       if (tab.id) {
-        console.log(
+        logger.log(
           "📤 Sending APPLY_ACCESS_CONTROL message with config:",
           configToApply
         );
-        console.log("🌐 Language:", lang);
+        logger.log("🌐 Language:", lang);
         const response = await chrome.tabs.sendMessage(tab.id, {
           type: "APPLY_ACCESS_CONTROL",
           config: configToApply,
           lang,
         });
-        console.log("📡 Response from content script:", response);
-        console.log("✅ Config applied to current tab");
+        logger.log("📡 Response from content script:", response);
+        logger.log("✅ Config applied to current tab");
       } else {
-        console.warn("⚠️ No tab ID found");
+        logger.warn("⚠️ No tab ID found");
       }
     } catch (error) {
-      console.error("❌ Error applying config to current tab:", error);
+      logger.error("❌ Error applying config to current tab:", error);
     }
   };
 
   // Enable all control
   const enableAll = async () => {
-    console.log("🔴 Enabling control for all projects...");
+    logger.log("🔴 Enabling control for all projects...");
     const t = createTranslator(lang);
     const newConfig = {
       ...config,
@@ -291,7 +292,7 @@ export function usePopupLogic() {
 
   // Disable all control
   const disableAll = async () => {
-    console.log("🟢 Disabling control for all projects...");
+    logger.log("🟢 Disabling control for all projects...");
     const t = createTranslator(lang);
     const newConfig = {
       ...config,
